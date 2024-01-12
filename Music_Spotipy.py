@@ -4,6 +4,7 @@ import re
 import random
 
 def spotify_playlist(results, sp):
+    '''RETURNS A LIST OF SONG NAMES AND ARTIST NAMES FROM A SPOTIFY PLAYLIST'''
     songs = []
     for item in results['tracks']['items']:
         track = item['track']
@@ -12,12 +13,14 @@ def spotify_playlist(results, sp):
     return songs
 
 def spotify_track(result, sp):
+    '''RETURNS THE NAME OF A ARTIST AND SONGNAME'''
     return (sp.track(result['id'])['album']['artists'][0]['name'], sp.track(result['id'])['name'])
 
 
 
 
 def spotify(source):
+    '''RETURNS LIST OF SONGNAMES AND ARTISTS FROM A SPOTIFY LINK'''
     cid = ''    #you get this from your spotify developer account
     secret = "" #you get this from your spotify developer account
     client_credentials_manager = SpotifyClientCredentials(client_id = cid, client_secret = secret)
