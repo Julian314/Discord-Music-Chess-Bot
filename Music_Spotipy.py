@@ -18,8 +18,8 @@ def spotify_track(result, sp):
 
 
 def spotify(source):
-    cid = 'bc030da8d3114800aa1e2204f8c19086'
-    secret = "34c39960b17d466c9b86300a0062dc79"
+    cid = ''    #you get this from your spotify developer account
+    secret = "" #you get this from your spotify developer account
     client_credentials_manager = SpotifyClientCredentials(client_id = cid, client_secret = secret)
     sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
