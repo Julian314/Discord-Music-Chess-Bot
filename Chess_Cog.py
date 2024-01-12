@@ -18,21 +18,22 @@ class Chess(commands.Cog):
         self.opponent = None
         self.game = False
         self.engine = NeuralNetwork_corrected(769, [770,512,256,128,64,32,16,1])
-        self.engine.load_state_dict(torch.load("SendHelpPls/Schopp_Bot/ShessGPT_2_57.pth", map_location = torch.device('cpu')))
+        self.engine.load_state_dict(torch.load("ShessGPT_2_57.pth", map_location = torch.device('cpu')))
 
     @staticmethod
     def store_img(fen, bot_move):
+        '''STORE IMAGE OF THE NEW BOARD. BOT MOVE IS HIGHLIGHTED'''
         renderer = BoardImage(fen)
-        print(bot_move)
         if bot_move is not None:
             image = renderer.render(highlighted_squares=(bot_move.from_square, bot_move.to_square))
-            imageio.imwrite('SendHelpPls/Schopp_Bot/board.png', image)
+            imageio.imwrite('board.png', image)
         else:
             image = renderer.render()
-            imageio.imwrite('SendHelpPls/Schopp_Bot/board.png', image)
+            imageio.imwrite('board.png', image)
 
     
     def reset(self):
+        '''RESETS THE CURRENT GAME'''
         self.board = chess.Board()
         self.color = chess.WHITE
         self.opponent = None
@@ -40,6 +41,7 @@ class Chess(commands.Cog):
 
     
     async def check_result(self, ctx):
+        '''CHECK IF THE GAME IS OVER, AND SEND THE RESULT'''
         if self.board.is_game_over():
             if self.board.is_checkmate():
                 reason = 'Checkmate'
@@ -52,7 +54,7 @@ class Chess(commands.Cog):
             result = self.board.result()
             await ctx.channel.send(f'The game is over. Result: {result}, Reason: {reason}')
             self.store_img(self.board.fen(), None)
-            await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+            await ctx.channel.send(file=discord.File('board.png'))
             self.reset()
             return True
         return False
@@ -67,7 +69,7 @@ class Chess(commands.Cog):
                 self.color = chess.BLACK
                 self.game = True
                 self.store_img(self.board.fen(), None)
-                await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                await ctx.channel.send(file=discord.File('board.png'))
             elif color.lower() == 'black':
                 await ctx.send('Du spielsch schwarz!')
                 self.color = chess.WHITE
@@ -76,7 +78,7 @@ class Chess(commands.Cog):
                 store = best_move
                 self.board.push(best_move)
                 self.store_img(self.board.fen(), store)
-                await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                await ctx.channel.send(file=discord.File('board.png'))
             else:
                 raise commands.CommandError('Du muesch no e farb schriibe entwecker "white" oder "black" z.B !chess white, denn spielsch als white')
         else:
@@ -97,7 +99,7 @@ class Chess(commands.Cog):
                     self.board.push(bot_move)
                     if await self.check_result(ctx) == False:
                         self.store_img(self.board.fen(), bot_move)
-                        await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                        await ctx.channel.send(file=discord.File('board.png'))
             else:
                 await ctx.channel.send(f'Das isch kein legal move gsi, das sind die mögliche Züg: {list(self.board.legal_moves)}')
         except:
@@ -106,7 +108,7 @@ class Chess(commands.Cog):
     @commands.command(name='eval')
     async def _eval(self, ctx: commands.Context):
         '''stockfish und ShessGPT eval'''
-        stockfish = Stockfish(path="/home/arbeite/stockfish/stockfish-ubuntu-x86-64-avx2", parameters={"Threads":4})
+        stockfish = Stockfish(path="PATH TO STOCKFISH", parameters={"Threads":4})
         stockfish_eval = helpers.get_stockfish_eval(stockfish, self.board)
         shess_gpt_eval = eval(self.board, self.engine)
 
@@ -125,7 +127,7 @@ class Chess(commands.Cog):
             self.board.pop()
             self.board.pop()
             self.store_img(self.board.fen(), None)
-            await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+            await ctx.channel.send(file=discord.File('board.png'))
         else:
             ctx.channel.send(f'{ctx.author.display_name} du bisch nöd dra amk, oder es lauft gar keis game')
 
@@ -140,7 +142,7 @@ class Chess(commands.Cog):
                     self.board.push(spielzug)
                     if await self.check_result(ctx) == False:
                         self.store_img(self.board.fen(), spielzug)
-                        await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                        await ctx.channel.send(file=discord.File('board.png'))
                 else:
                     await ctx.channel.send(f'Das isch kein legal move gsi, das sind die mögliche Züg: {list(self.board.legal_moves)}')
             except:
@@ -161,7 +163,7 @@ class Chess(commands.Cog):
                     self.color = chess.BLACK
                     self.game = True
                     self.store_img(self.board.fen(), None)
-                    await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                    await ctx.channel.send(file=discord.File('board.png'))
                 elif color.lower() == 'black':
                     await ctx.send('Du spielsch schwarz!')
                     self.color = chess.WHITE
@@ -170,7 +172,7 @@ class Chess(commands.Cog):
                     store = best_move
                     self.board.push(best_move)
                     self.store_img(self.board.fen(), store)
-                    await ctx.channel.send(file=discord.File('SendHelpPls/Schopp_Bot/board.png'))
+                    await ctx.channel.send(file=discord.File('board.png'))
                 else:
                     raise commands.CommandError('Du muesch no e farb schriibe entwecker "white" oder "black" z.B !chess white, denn spielsch als white')
             else:
@@ -182,7 +184,7 @@ class Chess(commands.Cog):
         '''Stockfish and ShessGPT will give move suggestion of the current board'''
         if self.game == True:
             best_move, eval = move(self.engine, self.board, self.color)
-            stockfish = Stockfish(path="/home/arbeite/stockfish/stockfish-ubuntu-x86-64-avx2", parameters={"Threads":4})
+            stockfish = Stockfish(path="PATH TO STOCKFISH", parameters={"Threads":4})
             stockfish.set_fen_position(self.board.fen())
             best_stockfish = stockfish.get_best_move()
             await ctx.channel.send(f'Stockfish: {best_stockfish}, ShessGPT: {best_move}')
