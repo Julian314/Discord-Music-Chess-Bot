@@ -28,7 +28,7 @@ async def on_voice_state_update(member, before, after):
         music.leave = True
         del music.voice_states[member.guild.id]
 
-with open('SendHelpPls/Schopp_Bot/token.txt', 'r') as file:
+with open('token.txt', 'r') as file:
     TOKEN = file.read().strip()
 
 bot.run(TOKEN)
