@@ -219,10 +219,6 @@ class VoiceState:
         while True:
             self.next.clear()
             if not self.loop:
-                # Try to get the next song within 3 minutes.
-                # If no song will be added to the queue in time,
-                # the player will disconnect due to performance
-                # reasons.             
                 self.current = await self.songs.get()
                 
             self.current.source.volume = self._volume
@@ -373,7 +369,7 @@ class Music(commands.Cog):
      
         if not ctx.voice_state.voice.is_playing():
             return await ctx.send(ctx.author.display_name,'...')
-            return await ctx.send('Fresse jetzt')
+            return await ctx.send('stop jetzt')
             
         else:
             ctx.voice_state.skip()
@@ -439,6 +435,9 @@ class Music(commands.Cog):
         await ctx.message.add_reaction('✅')
 
     @commands.command(name='play')
+    #when you search a spotify link, yt_dlp throws a DMCA error, so when we catch that error and handle the link as a spotify link and extract the songname and artistname using the spotify API
+    #when you do !play wikipedia.org (link) yt_dlp will throw an error since it is not supported then the code will treat it as a spotify link, the spotify API will throw an error since its 
+    #not a spotify link. the we will send an error message to the channel
     async def _play(self, ctx: commands.Context, *, search: str):
         """Plays a song.
         If there are songs in the queue, this will be queued until the
@@ -458,8 +457,8 @@ class Music(commands.Cog):
                     if member.activity is not None:
                         bool2 = False
 
-            if ctx.author.display_name not in ["Imeri", "Mlynarczyk", "Eidg. Dipl. El. Ing. Zeri"] or bool2:
-                try:
+            if ctx.author.display_name not in ["Imeri", "Mlynarczyk", "Eidg. Dipl. El. Ing. Zeri"] or bool2: #With bool2 and the other condition I ensure that my friends cannot play music while
+                try:                                                                                         #I added this as a joke feature :D, feel free to remove it or alter it to your friends names
                     try:
                         source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
                         song = Song(source)
