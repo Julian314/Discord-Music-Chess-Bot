@@ -1,6 +1,6 @@
-asyncio
-discord
 yt_dlp
-spotipy
 dismusic
 PyNaCl
+FFmpeg
+Other imports should be clear from the code :D
+
