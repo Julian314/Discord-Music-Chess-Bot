@@ -1,0 +1,6 @@
+asyncio
+discord
+yt_dlp
+spotipy
+dismusic
+PyNaCl
