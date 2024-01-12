@@ -14,12 +14,12 @@ def best_move(engine,board, is_turn):
             mini = max(list(evals.values()))
         else:
             mini = min(list(evals.values()))
-        #print(evals)
     for key in evals:
         if evals.get(key) == mini:
             return (key, evals.get(key))
 
 def move(engine, board, color):
+    '''MAKES A MOVE FOR THE ENGINE'''
     moves = list(board.legal_moves)
     evals = {}
     for move in moves:
@@ -36,6 +36,7 @@ def move(engine, board, color):
             return(key, evals.get(key))
 
 def eval(board, engine):
+    '''RETURN THE CURRENT EVALUATION OF THE POSITION ACCORDING TO THE ShessGPT ENGINE'''
     model_input = encode_model_input(board)
     return engine(model_input)
             
