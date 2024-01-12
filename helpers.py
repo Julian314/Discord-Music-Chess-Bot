@@ -1,6 +1,7 @@
 import torch
 import chess
 
+#The int_to_binary & en_passant functions are used for input encoding of the neural net
 def int_to_binary_64(num):
     binary_string = bin(num)[2:]  # Convert to binary and remove the '0b' prefix
     binary_string = binary_string.zfill(64)  # Zero-fill to ensure a length of 64 bits
@@ -27,24 +28,26 @@ def en_passant(board):
     return int_to_binary_10(int(board.ep_square))
 
 def get_stockfish_eval(stockfish, board):
-            stockfish.set_fen_position(board.fen())
-            eval_stock = stockfish.get_evaluation()
-            if eval_stock['type'] == 'mate':
-                if eval_stock['value'] > 0:
-                    return max(20, (100 - eval_stock['value'] * 5))
-                elif eval_stock['value'] == 0:
-                    if board.turn:
-                        return -100
-                    else:
-                        return 100
-                elif eval_stock['value'] < 0:
-                    return min(-20, -100 - eval_stock['value'] * 5)
+    '''RETURN THE STOCKFISH EVALUATION OF THE POSITION'''
+    stockfish.set_fen_position(board.fen())
+    eval_stock = stockfish.get_evaluation()
+    if eval_stock['type'] == 'mate':
+        if eval_stock['value'] > 0:
+            return max(20, (100 - eval_stock['value'] * 5))
+        elif eval_stock['value'] == 0:
+            if board.turn:
+                return -100
             else:
-                if eval_stock['value'] > 0:
-                    return min(20, eval_stock['value']/100)
-                else:
-                    return max(-20, eval_stock['value']/100)
-
+                return 100
+        elif eval_stock['value'] < 0:
+            return min(-20, -100 - eval_stock['value'] * 5)
+    else:
+        if eval_stock['value'] > 0:
+            return min(20, eval_stock['value']/100)
+        else:
+            return max(-20, eval_stock['value']/100)
+                    
+# The piece_name functions are used to calculate the piece advantage of a position
 def rook(strng):
   zaehler = 0
   for i in range(64):
@@ -74,6 +77,7 @@ def pawn(strng):
   return zaehler
 
 def encode_model_input(board):
+    '''ENCODES THE BOARD TO AN INPUT FOR THE NEURAL NET'''
   bin_string=int_to_binary_64(int(board.pieces(chess.PAWN, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.ROOK, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.KNIGHT, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.BISHOP, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.QUEEN, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.KING, chess.WHITE)))+int_to_binary_64(int(board.pieces(chess.PAWN, chess.BLACK)))+int_to_binary_64(int(board.pieces(chess.ROOK, chess.BLACK)))+int_to_binary_64(int(board.pieces(chess.KNIGHT, chess.BLACK)))+int_to_binary_64(int(board.pieces(chess.BISHOP, chess.BLACK)))+int_to_binary_64(int(board.pieces(chess.QUEEN, chess.BLACK)))+int_to_binary_64(int(board.pieces(chess.KING, chess.BLACK)))+str(int(board.turn))+str(int(board.has_kingside_castling_rights(chess.WHITE)))+str(int(board.has_queenside_castling_rights(chess.WHITE)))+str(int(board.has_kingside_castling_rights(chess.BLACK)))+str(int(board.has_queenside_castling_rights(chess.BLACK)))+en_passant(board)+int_to_binary_6(board.halfmove_clock)+int_to_binary_10(board.fullmove_number)
   binary = bytes(int(bin_string[i:i+8],2) for i in range(0,len(bin_string),8))
   bin_string = ''.join(format(byte,'08b')for byte in binary)
