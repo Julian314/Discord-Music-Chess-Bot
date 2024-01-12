@@ -2,5 +2,6 @@ yt_dlp
 dismusic
 PyNaCl
 FFmpeg
+Stockfish, not just the library but the engine on your system
 Other imports should be clear from the code :D
 
